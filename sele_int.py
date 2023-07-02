@@ -1,26 +1,16 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[95]:
-
-
-import re, json, time
+import re
+import json
+import time
 from selenium import webdriver
 import locale
-
-locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
-# import By
 from selenium.webdriver.common.by import By
-from selenium.webdriver.chrome.service import Service
-
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
-# from webdriver_manager.chrome import ChromeDriverManager
 from parsel import Selector
-
 import pandas as pd
 import numpy as np
+
+locale.setlocale(locale.LC_ALL, "pt_BR.UTF-8")
 
 
 def scroll_page(url):
