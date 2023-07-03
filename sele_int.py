@@ -410,8 +410,13 @@ def trata_visualizacoes(col: pd.Series) -> pd.Series:
     return int(col.replace(" ", "").replace(",", "."))
 
 
-def trata_data(col: pd.Series) -> pd.Series:
-    return pd.to_datetime(col.str.replace(". de", ""), format="%d de %b %Y")
+def trata_data(series):
+    series_data = series.str.replace(". de", "").str.extract(
+        pat=r"(\d{1,2} de [a-zA-Z]+ \d{4})", expand=False
+    )
+    # print(series_data)
+    series_data = pd.to_datetime(series_data, format="%d de %b %Y", errors="coerce")
+    return series_data
 
 
 # In[101]:
