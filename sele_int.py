@@ -462,14 +462,9 @@ videos = pd.concat([videos, top_videos])
 
 
 # In[119]:
+videos = videos.sort_values(by=["channel_name", "subscribers"]).assign(
+    subscribers=lambda df: df["subscribers"].fillna(method="ffill")
+)
 
 
-videos_sorted = videos.sort_values("channel_name")
-
-videos_sorted["subscribers"] = videos_sorted["subscribers"].fillna(method="ffill")
-
-
-videos_sorted = videos_sorted.sort_values(["channel_name", "category", "date"])
-
-
-videos_sorted.to_csv("videos_sorted.csv", index=False)
+videos.to_csv("videos_recent_top.csv", index=False)
