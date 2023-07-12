@@ -209,7 +209,13 @@ def get_info_from_video(selector) -> dict[str, str | int]:
     date = selector.css("#info-strings yt-formatted-string::text").get()
 
     # views
-    views = selector.css("span.bold.style-scope.yt-formatted-string::text").get()
+    views = int(
+        re.search(r"(.*)\s", selector.css(".view-count::text").get())
+        .group()
+        .replace(".", "")
+        .replace(",", "")
+        .strip()
+    )
 
     # likes
     likes = selector.css(
@@ -375,6 +381,8 @@ df_top.to_csv("top_videos.csv", index=False)
 
 # In[99]:
 
+import pandas as pd
+import re
 
 videos = pd.read_csv("videos.csv")
 
@@ -393,7 +401,9 @@ def trata_inscritos(col: pd.Series) -> pd.Series:
 def trata_visualizacoes(col: pd.Series) -> pd.Series:
     # treat the characters U+00a0
     col = col.replace("\xa0", "")
-    col = col.split(" visualizações")[0]
+    # regex take numbers
+    col = re.search(r"(\d+)", col).group()
+    # col = col.split(" visualizações")[0]
 
     if "mil" in col:
         return int(
@@ -424,7 +434,7 @@ def trata_data(series):
 
 videos.assign(
     subscribers=lambda df_: df_["subscribers"].apply(trata_inscritos),
-    views=lambda df_: df_["views"].apply(trata_visualizacoes),
+    # views=lambda df_: df_["views"].apply(trata_visualizacoes),
     date=lambda df_: trata_data(df_["date"]),
     category="RECENT",
 ).to_parquet("videos.parquet")
@@ -444,7 +454,7 @@ top_videos = pd.read_csv("top_videos.csv")
 
 top_videos.assign(
     date=lambda df_: trata_data(df_["date"]),
-    views=lambda df_: df_["views"].apply(trata_visualizacoes),
+    # views=lambda df_: df_["views"].apply(trata_visualizacoes),
     category="TOP",
 ).to_parquet("top_videos.parquet")
 
@@ -465,6 +475,15 @@ videos = pd.concat([videos, top_videos])
 videos = videos.sort_values(by=["channel_name", "subscribers"]).assign(
     subscribers=lambda df: df["subscribers"].fillna(method="ffill")
 )
+with open("canais.txt", "r") as f:
+    # read each line as a item in a list and remove the \n
+    canais = [line.strip() for line in f.readlines()]
 
 
-videos.to_csv("videos_recent_top.csv", index=False)
+import os
+
+os.makedirs(f"./data/{canais[0].split('@')[-1]}", exist_ok=True)
+
+videos.to_csv("data/GUESS/videos_recent_top.csv", index=False)
+
+# %%
