@@ -209,13 +209,19 @@ def get_info_from_video(selector) -> dict[str, str | int]:
     date = selector.css("#info-strings yt-formatted-string::text").get()
 
     # views
-    views = int(
-        re.search(r"(.*)\s", selector.css(".view-count::text").get())
-        .group()
-        .replace(".", "")
-        .replace(",", "")
-        .strip()
-    )
+    try:
+        views = int(
+            re.search(r"(.*)\s", selector.css(".view-count::text").get())
+            .group()
+            .replace(".", "")
+            .replace(",", "")
+            .strip()
+        )
+    except Exception as e:
+        # video link
+        print(selector.css("#info-strings yt-formatted-string::text").get())
+        print(e)
+        raise Exception("Error")
 
     # likes
     likes = selector.css(
@@ -484,6 +490,6 @@ import os
 
 os.makedirs(f"./data/{canais[0].split('@')[-1]}", exist_ok=True)
 
-videos.to_csv("data/GUESS/videos_recent_top.csv", index=False)
+videos.to_csv(f"data/{canais[0].split('@')[-1]}/videos_recent_top.csv", index=False)
 
 # %%
