@@ -2,3 +2,4 @@ selenium
 parsel
 pandas
 numpy
+papermill

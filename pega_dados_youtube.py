@@ -274,16 +274,16 @@ def get_info_from_video(selector) -> dict[str, str | int]:
         comments_amount = 0
 
     # keywords
-    all_script_tags = selector.css("script").getall()
-    keywords = (
-        "".join(
-            re.findall(r'"keywords":\[(.*)\],"channelId":".*"', str(all_script_tags))
-        )
-        .replace('"', "")
-        .split(",")
-    )
+    # all_script_tags = selector.css("script").getall()
+    # keywords = (
+    #     "".join(
+    #         re.findall(r'"keywords":\[(.*)\],"channelId":".*"', str(all_script_tags))
+    #     )
+    #     .replace('"', "")
+    #     .split(",")
+    # )
 
-    print(title, views, likes, date, comments_amount, keywords)
+    print(title, views, likes, date, comments_amount)
 
     try:
         likes = re.search(r"(\d+)", likes).group()
@@ -298,7 +298,7 @@ def get_info_from_video(selector) -> dict[str, str | int]:
             "likes": [likes],
             "date": [date],
             "comments_amount": [comments_amount],
-            "keywords": [keywords],
+            # "keywords": [keywords],
         }
     )
 
@@ -412,10 +412,9 @@ df_top = pd.DataFrame()
 df_lifetime = pd.DataFrame()
 for ch in canais:
     # recent videos
-    # result = scroll_page(ch + "/videos")
-    # df_channel = parse_channel(result)
-    # # print(df_channel)
-    # df = pd.concat([df, df_channel])
+    result = scroll_page(ch + "/videos")
+    df_channel = parse_channel(result)
+    df = pd.concat([df, df_channel])
 
     # top videos
     df_top_channel = parse_top_channel(ch + "/videos")
@@ -428,7 +427,7 @@ for ch in canais:
 
 os.makedirs(f"./data/{canais[0].split('@')[-1]}", exist_ok=True)
 
-# df.to_csv(f"./data/{canais[0].split('@')[-1]}/videos.csv", index=False)
+df.to_csv(f"./data/{canais[0].split('@')[-1]}/videos.csv", index=False)
 df_top.to_csv(f"./data/{canais[0].split('@')[-1]}/top_videos.csv", index=False)
 df_lifetime.to_csv(f"./data/{canais[0].split('@')[-1]}/lifetime.csv", index=False)
 
@@ -518,7 +517,7 @@ videos.assign(
     views=lambda df_: df_["views"].apply(trata_visualizacoes),
     date=lambda df_: df_["date"].apply(trata_data),
     category="RECENT",
-).to_parquet("videos.parquet")
+).to_parquet(f"./data/{canais[0].split('@')[-1]}/videos.parquet")
 
 # %% [markdown]
 # # Trata Top videos
@@ -534,7 +533,7 @@ top_videos.assign(
     date=lambda df_: df_["date"].apply(trata_data),
     views=lambda df_: df_["views"].apply(trata_visualizacoes),
     category="TOP",
-).to_parquet("top_videos.parquet")
+).to_parquet(f"./data/{canais[0].split('@')[-1]}/top_videos.parquet")
 
 # %%
 top_videos_silver = pd.read_parquet("top_videos.parquet")
@@ -591,7 +590,7 @@ videos_sorted["subscribers"] = videos_sorted["subscribers"].fillna(method="ffill
 videos_sorted = videos_sorted.sort_values(["channel_name", "category", "date"])
 
 # %%
-videos_sorted.to_parquet("videos_sorted.parquet")
+videos_sorted.to_parquet(f"./data/{canais[0].split('@')[-1]}/videos_sorted.parquet")
 
 # %%
 pd.read_parquet(f"./data/{canais[0].split('@')[-1]}/videos_sorted.parquet").to_csv(
@@ -599,6 +598,19 @@ pd.read_parquet(f"./data/{canais[0].split('@')[-1]}/videos_sorted.parquet").to_c
 )
 
 # %%
+
+# read channel IDs
+
+with open("canais.txt", "r") as f:
+    canais = f.readlines()
+
+
+canais = [c.strip() for c in canais]
+# take only the string after the last slash
+canais = [c.split("/")[-1] for c in canais]
+
+print(canais)
+
 base_url = "https://socialblade.com/youtube/channel/"
 
 social_blade_data = []
