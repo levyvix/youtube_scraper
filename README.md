@@ -11,6 +11,8 @@ Informações como:
 - Número de likes
 - Número de comentários
 
-Esse script obtem 2 tipos de informações dos canais:
+Esse script obtem 4 tipos de informações dos canais:
 - Videos Recentes
 - Vídeos Em Alta
+- Dados do canal
+- Dados do canal nos ultimos 30 dias
