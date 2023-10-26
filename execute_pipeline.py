@@ -6,5 +6,3 @@ pm.execute_notebook(
 )
 
 pm.execute_notebook("transform.ipynb", "transform.ipynb", parameters={})
-
-
